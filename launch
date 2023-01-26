@@ -29,9 +29,10 @@ if [ -z "$VERSION" ]; then
     exit 1
 fi
 PLATFORMS="C:\\Program Files (x86)\\Battle.net\\$VERSION\\platforms"
-if [ ! -f "$PLATFORMS/.wk" ]; then
-    setfattr -x user.DOSATTRIB "$PLATFORMS/qwindows.dll"
-    touch "$PLATFORMS/.wk"
+PLATFORMS_LINUX="$WINEPREFIX/drive_c/Program Files (x86)/Battle.net/$VERSION/platforms"
+if [ ! -f "$PLATFORMS_LINUX/.w_qtworkaround" ]; then
+    setfattr -x user.DOSATTRIB "$PLATFORMS_LINUX/qwindows.dll"
+    touch "$PLATFORMS_LINUX/.w_qtworkaround"
 fi
 
 export QT_QPA_PLATFORM_PLUGIN_PATH="$PLATFORMS"
