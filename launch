@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+GAME_ROOT_DIR="$(dirname -- "${BASH_SOURCE[0]}" | xargs realpath)"
+source "$GAME_ROOT_DIR/environment"
+
+if [ -z "$WINEDLLOVERRIDES" ]; then
+    echo "Failed to set up environment variables."
+    exit 1
+fi
+
+REQUIRED_BINARIES=("wine")
+for binary in "${REQUIRED_BINARIES[@]}"; do
+    if ! command -v "$binary" &> /dev/null; then
+        echo "Failed to find required binary: $binary"
+        exit 1
+    fi
+done
+
+FILE_PATH="$WINEPREFIX/drive_c/Program Files (x86)/Battle.net/Battle.net.exe"
+if [ ! -f "$FILE_PATH" ]; then
+    echo "Failed to find Battle.net executable."
+    exit 1
+fi
+
+wine "$FILE_PATH"

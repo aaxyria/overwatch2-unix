@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+GAME_ROOT_DIR="$(dirname -- "${BASH_SOURCE[0]}" | xargs realpath)"
+source "$GAME_ROOT_DIR/environment"
+
+if [ -z "$WINEDLLOVERRIDES" ]; then
+    echo "Failed to set up environment variables."
+    exit 1
+fi
+
+REQUIRED_BINARIES=("wine" "aria2c" "tar" "winetricks")
+for binary in "${REQUIRED_BINARIES[@]}"; do
+    if ! command -v "$binary" &> /dev/null; then
+        echo "Failed to find required binary: $binary"
+        exit 1
+    fi
+done
+
+BATTLE_NET=("https://www.battle.net/download/getInstallerForGame?os=win&gameProgram=BATTLENET_APP&version=Live" "installer" "Battle.net-Setup.exe")
+DXVK_ASYNC=("https://github.com/Sporif/dxvk-async/releases/download/2.0/dxvk-async-2.0.tar.gz" "installer" "dxvk-async.tar.gz")
+DXVK_CACHE=("https://lutris.nyc3.cdn.digitaloceanspaces.com/games/overwatch/Overwatch.tar.xz" "installer" "dxvk_cache.tar.xz")
+WINETRICKS_MODULES=("win10" "arial")
+
+if [ ! -d "$WINEPREFIX" ]; then
+    echo "Initializing wine prefix..."
+    wine wineboot
+    winetricks -q ${WINETRICKS_MODULES[@]}
+fi
+
+mkdir "$GAME_ROOT_DIR"/installer
+
+# Download and install Battle.net Launcher
+if [ ! -f "$GAME_ROOT_DIR/${BATTLE_NET[1]}/${BATTLE_NET[2]}" ]; then
+    echo "Downloading Battle.net Launcher..."
+    aria2c -x 16 -s 16 -d "${BATTLE_NET[1]}" -o "${BATTLE_NET[2]}" "${BATTLE_NET[0]}"
+fi
+
+# Download and install dxvk-async
+if [ ! -f "$GAME_ROOT_DIR/${DXVK_ASYNC[1]}/${DXVK_ASYNC[2]}" ]; then
+    echo "Downloading dxvk-async..."
+    aria2c -x 16 -s 16 -d "${DXVK_ASYNC[1]}" -o "${DXVK_ASYNC[2]}" "${DXVK_ASYNC[0]}"
+    tar -xvf "$GAME_ROOT_DIR/${DXVK_ASYNC[1]}/${DXVK_ASYNC[2]}" -C "$GAME_ROOT_DIR/${DXVK_ASYNC[1]}"
+    chmod +x "$GAME_ROOT_DIR/${DXVK_ASYNC[1]}/dxvk-async-2.0/setup_dxvk.sh"
+    "$GAME_ROOT_DIR/${DXVK_ASYNC[1]}/dxvk-async-2.0/setup_dxvk.sh" install
+fi
+
+# Download and install dxvk cache and export it to $WINEPREFIX/dxvkcache
+if [ ! -d "$WINEPREFIX/dxvkcache" ]; then
+    echo "Downloading dxvk cache..."
+    aria2c -x 16 -s 16 -d "${DXVK_CACHE[1]}" -o "${DXVK_CACHE[2]}" "${DXVK_CACHE[0]}"
+    tar -xvf "$GAME_ROOT_DIR/${DXVK_CACHE[1]}/${DXVK_CACHE[2]}" -C "$WINEPREFIX"
+fi
+
+# Apply dxvk configuration
+if [ ! -f "$WINEPREFIX/dxvk.conf" ]; then
+    echo "Applying dxvk configuration..."
+    echo 'dxgi.nvapiHack = False' > "$WINEPREFIX/dxvk.conf"
+fi
+
+# Install Blizzard Battle.net, checking if it exists in Program Files first
+if [ ! -d "$WINEPREFIX/drive_c/Program Files (x86)/Battle.net" ]; then
+    echo "Installing Battle.net..."
+    echo "OPEN IT ONCE THEN CLOSE IT. DO NOT INSTALL IT BEFORE USING THE '$GAME_ROOT_DIR/fixes' SCRIPT."
+    sleep 5
+    wine "$GAME_ROOT_DIR/${BATTLE_NET[1]}/${BATTLE_NET[2]}"
+fi

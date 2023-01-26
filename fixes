@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+GAME_ROOT_DIR="$(dirname -- "${BASH_SOURCE[0]}" | xargs realpath)"
+source "$GAME_ROOT_DIR/environment"
+
+if [ -z "$WINEDLLOVERRIDES" ]; then
+    echo "Failed to set up environment variables."
+    exit 1
+fi
+
+REQUIRED_BINARIES=("wine" "jq")
+for binary in "${REQUIRED_BINARIES[@]}"; do
+    if ! command -v "$binary" &> /dev/null; then
+        echo "Failed to find required binary: $binary"
+        exit 1
+    fi
+done
+
+FILE_PATH="$WINEPREFIX/drive_c/users/$USER/AppData/Roaming/Battle.net/Battle.net.config"
+if [ ! -f "$FILE_PATH" ]; then
+    echo "Failed to find Battle.net config file: $FILE_PATH"
+    exit 1
+fi
+
+JSON_PROPERTIES=('Client.GameLaunchWindowBehavior="2"' 'Client.GameSearch.BackgroundSearch="true"' 'Client.HardwareAcceleration="false"' 'Client.Sound.Enabled="false"' 'Client.Streaming.StreamingEnabled="false"')
+
+INPUT=$(cat "$FILE_PATH")
+for property in "${JSON_PROPERTIES[@]}"; do
+    PROP_NAME=.$(echo "$property" | cut -d '=' -f 1)
+    PROP_VALUE=$(echo "$property" | cut -d '=' -f 2)
+    INPUT=$(echo "$INPUT" | jq "$PROP_NAME = $PROP_VALUE")
+done
+echo "$INPUT" > "$FILE_PATH"
+
+# Wine Staging: Enabling DXVA2 - path: HKEY_CURRENT_USER\Software\Wine\DXVA2, key: backend, value: va
+wine reg add "HKEY_CURRENT_USER\Software\Wine\DXVA2" /v backend /t REG_SZ /d va /f
