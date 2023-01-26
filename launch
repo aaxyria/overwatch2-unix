@@ -22,4 +22,13 @@ if [ ! -f "$FILE_PATH" ]; then
     exit 1
 fi
 
+ROOT_BLIZZARD_DIR="$WINEPREFIX/drive_c/Program Files (x86)/Battle.net"
+VERSION=$(ls "$ROOT_BLIZZARD_DIR" | grep -oP "Battle.net.\d+" | head -n 1)
+if [ -z "$VERSION" ]; then
+    echo "Failed to find Battle.net version."
+    exit 1
+fi
+PLATFORMS="C:\\Program Files (x86)\\Battle.net\\$VERSION\\platforms"
+
+export QT_QPA_PLATFORM_PLUGIN_PATH="$PLATFORMS"
 wine "$FILE_PATH"
