@@ -21,4 +21,4 @@ now you can run `./fixes`, which will allow you to run everything smoothly.
 
 **3. launching**
 
-everytime you need to launch the battle.net launcher, you can use the `./launch` script
+every time you need to launch the battle.net launcher, you can use the `./launch` script
