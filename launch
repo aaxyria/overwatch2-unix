@@ -35,5 +35,5 @@ if [ ! -f "$PLATFORMS_LINUX/.w_qtworkaround" ]; then
     touch "$PLATFORMS_LINUX/.w_qtworkaround"
 fi
 
-export QT_QPA_PLATFORM_PLUGIN_PATH="$PLATFORMS"
+export QT_QPA_PLATFORM_PLUGIN_PATH="$PLATFORMS" 
 wine "$FILE_PATH"
