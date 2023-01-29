@@ -35,5 +35,6 @@ if [ ! -f "$PLATFORMS_LINUX/.w_qtworkaround" ]; then
     touch "$PLATFORMS_LINUX/.w_qtworkaround"
 fi
 
+"$GAME_ROOT_DIR"/discord/status.py &
 export QT_QPA_PLATFORM_PLUGIN_PATH="$PLATFORMS" 
 wine "$FILE_PATH"

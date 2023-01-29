@@ -1,7 +1,10 @@
+#!/usr/bin/env python3
+
 from time import sleep, time
 from typing import Optional
-from pypresence import Presence
+
 import psutil
+from pypresence import Presence
 
 # The client ID for a Discord application. This is the client identification number for a
 # verified Overwatch 2 game. You can find this number by either searching for a verified Discord
@@ -29,9 +32,11 @@ def connect() -> Optional[Presence]:
     except:
         return None
 
+
 # Return whether the Overwatch 2 process is running.
 def is_running() -> bool:
     return any("Overwatch.exe" in p.name() for p in psutil.process_iter())
+
 
 # The loop that will poll the game for status updates.
 def loop(app: Presence, is_running_: bool, delta: int):
@@ -40,9 +45,11 @@ def loop(app: Presence, is_running_: bool, delta: int):
     if exceeded_time_limit:
         print("Overwatch 2 has been closed.")
         app.clear()
-        return app.close()
+        app.close()
+        return exit(0)
     sleep(poll_interval)
     return loop(app, is_running(), delta + 1)
+
 
 # Wait for the Overwatch 2 process to start in order to initialize the loop.
 def wait_for_process():
@@ -51,11 +58,11 @@ def wait_for_process():
         sleep(poll_interval)
     connection = connect()
     if connection is None:
-        error = "Failed to connect to Discord. Please make sure that Discord is running."
-        print(error)
+        print("Failed to connect to Discord. Please make sure that Discord is running.")
     else:
         print("Connected to Discord.")
         loop(connection, True, 0)
+
 
 if __name__ == "__main__":
     wait_for_process()
