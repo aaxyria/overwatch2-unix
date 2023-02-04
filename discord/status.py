@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from sys import exit
 from time import sleep, time
 from typing import Optional
 
@@ -43,9 +44,9 @@ def loop(app: Presence, is_running_: bool, delta: int):
     delta = 0 if delta > max_tick_delta else delta
     exceeded_time_limit = delta > 2 and not is_running_
     if exceeded_time_limit:
-        print("Overwatch 2 has been closed.")
         app.clear()
         app.close()
+        print("Overwatch 2 has been closed.")
         return exit(0)
     sleep(poll_interval)
     return loop(app, is_running(), delta + 1)

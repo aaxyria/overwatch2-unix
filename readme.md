@@ -1,12 +1,13 @@
 # overwatch2-unix
 
-In case you encounter some issues, make sure you are up to date with [dependencies]. 
+In case you encounter some issues, make sure you are up to date with [dependencies].
 
 [dependencies]: https://github.com/lutris/docs/blob/master/WineDependencies.md
 
 ### instructions
 
 **1. dependencies:**
+
 - patched wine, such as [wine-tkg-git] or something like gloriousegroll's wine-ge
 - jq, aria2, winetricks, tar, jq
 

@@ -17,7 +17,7 @@ for binary in "${REQUIRED_BINARIES[@]}"; do
 done
 
 BATTLE_NET=("https://www.battle.net/download/getInstallerForGame?os=win&gameProgram=BATTLENET_APP&version=Live" "installer" "Battle.net-Setup.exe")
-DXVK_ASYNC=("https://github.com/Sporif/dxvk-async/releases/download/2.0/dxvk-async-2.0.tar.gz" "installer" "dxvk-async.tar.gz")
+DXVK=("https://github.com/Sporif/dxvk-async/releases/download/2.0/dxvk-async-2.0.tar.gz" "installer" "dxvk-async.tar.gz")
 DXVK_CACHE=("https://lutris.nyc3.cdn.digitaloceanspaces.com/games/overwatch/Overwatch.tar.xz" "installer" "dxvk_cache.tar.xz")
 WINETRICKS_MODULES=("win10" "arial")
 
@@ -35,17 +35,17 @@ if [ ! -f "$GAME_ROOT_DIR/${BATTLE_NET[1]}/${BATTLE_NET[2]}" ]; then
     aria2c -x 16 -s 16 -d "${BATTLE_NET[1]}" -o "${BATTLE_NET[2]}" "${BATTLE_NET[0]}"
 fi
 
-# Download and install dxvk-async
-if [ ! -f "$GAME_ROOT_DIR/${DXVK_ASYNC[1]}/${DXVK_ASYNC[2]}" ]; then
-    echo "Downloading dxvk-async..."
-    aria2c -x 16 -s 16 -d "${DXVK_ASYNC[1]}" -o "${DXVK_ASYNC[2]}" "${DXVK_ASYNC[0]}"
-    tar -xvf "$GAME_ROOT_DIR/${DXVK_ASYNC[1]}/${DXVK_ASYNC[2]}" -C "$GAME_ROOT_DIR/${DXVK_ASYNC[1]}"
-    chmod +x "$GAME_ROOT_DIR/${DXVK_ASYNC[1]}/dxvk-async-2.0/setup_dxvk.sh"
-    "$GAME_ROOT_DIR/${DXVK_ASYNC[1]}/dxvk-async-2.0/setup_dxvk.sh" install
+# Download and install dxvk
+if [ ! -f "$GAME_ROOT_DIR/${DXVK[1]}/${DXVK[2]}" ]; then
+    echo "Downloading and installing dxvk..."
+    aria2c -x 16 -s 16 -d "${DXVK[1]}" -o "${DXVK[2]}" "${DXVK[0]}"
+    tar -xvf "$GAME_ROOT_DIR/${DXVK[1]}/${DXVK[2]}" -C "$GAME_ROOT_DIR/${DXVK[1]}"
+    cp "$GAME_ROOT_DIR/${DXVK[1]}/dxvk-async-2.0"/x64/*.dll $WINEPREFIX/drive_c/windows/system32
+    cp "$GAME_ROOT_DIR/${DXVK[1]}/dxvk-async-2.0"/x32/*.dll $WINEPREFIX/drive_c/windows/syswow64
 fi
 
 # Download and install dxvk cache and export it to $WINEPREFIX/dxvkcache
-if [ ! -d "$WINEPREFIX/dxvkcache" ]; then
+if [ ! -d "$WINEPREFIX/Overwatch.dxvk-cache" ]; then
     echo "Downloading dxvk cache..."
     aria2c -x 16 -s 16 -d "${DXVK_CACHE[1]}" -o "${DXVK_CACHE[2]}" "${DXVK_CACHE[0]}"
     tar -xvf "$GAME_ROOT_DIR/${DXVK_CACHE[1]}/${DXVK_CACHE[2]}" -C "$WINEPREFIX"

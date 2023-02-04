@@ -28,13 +28,11 @@ if [ -z "$VERSION" ]; then
     echo "Failed to find Battle.net version."
     exit 1
 fi
-PLATFORMS="C:\\Program Files (x86)\\Battle.net\\$VERSION\\platforms"
-PLATFORMS_LINUX="$WINEPREFIX/drive_c/Program Files (x86)/Battle.net/$VERSION/platforms"
-if [ ! -f "$PLATFORMS_LINUX/.w_qtworkaround" ]; then
-    setfattr -x user.DOSATTRIB "$PLATFORMS_LINUX/qwindows.dll"
-    touch "$PLATFORMS_LINUX/.w_qtworkaround"
+PLATFORMS="$WINEPREFIX/drive_c/Program Files (x86)/Battle.net/$VERSION/platforms"
+if getfattr -n user.DOSATTRIB "$PLATFORMS/qwindows.dll" &> /dev/null; then
+    echo "[>] Applying attributes workaround for 'qwindows.dll'..."
+    setfattr -x user.DOSATTRIB "$PLATFORMS/qwindows.dll"
 fi
 
 "$GAME_ROOT_DIR"/discord/status.py &
-export QT_QPA_PLATFORM_PLUGIN_PATH="$PLATFORMS" 
 wine "$FILE_PATH"
